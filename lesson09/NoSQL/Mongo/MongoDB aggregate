@@ -1,0 +1,20 @@
+db.comments.aggregate([
+  {
+    $lookup: {
+      from: "users",           // Колекція, до якої приєднуємо дані
+      localField: "userId",     // Поле в колекції comments, яке використовується для зв’язку
+      foreignField: "_id",      // Поле в колекції users, яке відповідає userId
+      as: "userDetails"         // Назва для приєднаних даних
+    }
+  },
+  { $unwind: "$userDetails" }, // Перетворення масиву userDetails на окремий об’єкт
+  {
+    $project: {                 // Вибір полів для виведення
+      _id: 0,
+      content: 1,
+      userName: "$userDetails.name",
+      userEmail: "$userDetails.email",
+      userAge: "$userDetails.age",
+    }
+  }
+]);
