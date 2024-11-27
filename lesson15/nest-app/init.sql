@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS tweets (
 
 CREATE TABLE IF NOT EXISTS tokens (
                                       id SERIAL PRIMARY KEY,
-                                      user_id INT NOT NULL,
+                                      user_id INT UNIQUE NOT NULL,
                                       access_token TEXT NOT NULL,
                                       refresh_token TEXT NOT NULL,
                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

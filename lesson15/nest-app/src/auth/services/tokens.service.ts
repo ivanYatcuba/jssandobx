@@ -11,7 +11,8 @@ export class TokensService {
     refreshToken: string,
   ): Promise<void> {
     await this.pool.query(
-      'INSERT INTO tokens (user_id, access_token, refresh_token) VALUES ($1, $2, $3)',
+      'INSERT INTO tokens (user_id, access_token, refresh_token) VALUES ($1, $2, $3) ' +
+        'ON CONFLICT (user_id) DO UPDATE SET access_token = $2, refresh_token = $3',
       [userId, accessToken, refreshToken],
     );
   }
