@@ -1,17 +1,22 @@
 export interface CreateUserDto {
-  email: string;
-  login: string;
-  password: string;
+  email: string
+  login: string
+  password: string
 }
 
 export interface UserInfo {
-  email: string;
-  login: string;
-  createdAt: Date;
+  uid: string
+  email: string
+  login: string
 }
 
 export interface UserInfoWithPass extends UserInfo {
-  password: string;
+  password: string
 }
 
 export interface UserCreatedDto {}
+
+export interface UserValidateRequest {
+  login: string
+  password: string
+}

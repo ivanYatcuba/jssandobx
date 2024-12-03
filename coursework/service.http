@@ -1,0 +1,40 @@
+### Register user
+POST http://localhost:3000/api/v1/user/register
+Content-Type: application/json
+
+{
+  "email": "test@mail.com",
+  "login": "newMe",
+  "password": "qwerty"
+}
+
+### Get user token
+POST http://localhost:3000/api/v1/auth/token
+Content-Type: application/json
+x-client-id: test-client
+
+{
+  "login": "newMe",
+  "password": "qwerty"
+}
+
+> {%
+  client.global.set("accessToken", response.body.accessToken);
+  client.global.set("refreshToken", response.body.refreshToken);
+%}
+
+### Refresh user token
+POST http://localhost:3000/api/v1/auth/refresh
+Content-Type: application/json
+x-client-id: test-client
+authorization: Bearer {{refreshToken}}
+
+> {%
+  client.global.set("accessToken", response.body.accessToken);
+%}
+
+### Logout token
+POST http://localhost:3000/api/v1/auth/logout
+Content-Type: application/json
+x-client-id: test-client
+authorization: Bearer {{accessToken}}

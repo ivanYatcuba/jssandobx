@@ -1,6 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { CreateUserDto } from 'src/dto/user.dto';
-import { UserService } from 'src/service/user.service';
+import { Body, Controller, Post } from '@nestjs/common'
+import { CreateUserDto } from 'src/dto/user.dto'
+import { UserService } from 'src/service/user.service'
 
 @Controller('api/v1/user')
 export class UserController {
@@ -8,6 +8,6 @@ export class UserController {
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto): Promise<void> {
-    await this.userService.createUser(createUserDto);
+    await this.userService.createUser(createUserDto)
   }
 }
