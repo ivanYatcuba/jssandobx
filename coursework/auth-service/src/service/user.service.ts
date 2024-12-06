@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ClientProxy } from '@nestjs/microservices'
+import { UserInfo, UserValidateRequest } from 'lib-core/dist/dto/user.dto'
 import { firstValueFrom, timeout } from 'rxjs'
-import { UserInfo, UserValidateRequest } from 'src/dto/user'
 
 @Injectable()
 export class UserService {

@@ -38,3 +38,21 @@ POST http://localhost:3000/api/v1/auth/logout
 Content-Type: application/json
 x-client-id: test-client
 authorization: Bearer {{accessToken}}
+
+### Create post
+POST http://localhost:3000/api/v1/post
+Content-Type: application/json
+x-client-id: test-client
+authorization: Bearer {{accessToken}}
+
+{
+  "content": "very useful information"
+}
+
+### List posts
+
+GET http://localhost:3000/api/v1/post/list?limit=2&offset=0
+Content-Type: application/json
+x-client-id: test-client
+authorization: Bearer {{accessToken}}
+

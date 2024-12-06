@@ -1,6 +1,13 @@
 import { Inject } from '@nestjs/common'
 import { MessagePattern } from '@nestjs/microservices'
-import { CreateUserDto, UserCreatedDto, UserInfo, UserValidateRequest } from 'src/dto/user.dto'
+import {
+  CreateUserDto,
+  GetUserNamesRequest,
+  GetUserNamesResponse,
+  UserCreatedDto,
+  UserInfo,
+  UserValidateRequest,
+} from 'lib-core/dist/dto/user.dto'
 import { UserService } from 'src/service/user.service'
 
 export class UserController {
@@ -14,5 +21,10 @@ export class UserController {
   @MessagePattern('user.validate')
   async validateUser(userValidateRequest: UserValidateRequest): Promise<UserInfo> {
     return await this.userService.validateUser(userValidateRequest)
+  }
+
+  @MessagePattern('user.names')
+  async getUserNames(getUserNamesRequest: GetUserNamesRequest): Promise<GetUserNamesResponse> {
+    return await this.userService.getUsernames(getUserNamesRequest)
   }
 }

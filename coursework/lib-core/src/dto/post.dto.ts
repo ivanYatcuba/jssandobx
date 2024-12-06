@@ -1,6 +1,11 @@
+export interface UserPostInput {
+  content: string
+}
+
 export interface PostDto {
   content: string
-  authorId: string
+  author: string
+  date: Date
 }
 
 export interface CreatePostRequest {
@@ -30,6 +35,8 @@ export interface ListAuthorsResponse {
 
 export interface ListPostsRequest {
   authorId?: string
+  limit?: number
+  offset?: number
 }
 
 export interface ListPostsResponse {

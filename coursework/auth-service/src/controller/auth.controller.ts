@@ -1,13 +1,15 @@
 import { Inject } from '@nestjs/common'
 import { MessagePattern } from '@nestjs/microservices'
 import {
+  CheckTokenExistsRequest,
+  CheckTokenExistsResponse,
   LogoutRequest,
   LogoutResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
   TokenRequest,
   TokenResponse,
-} from 'src/dto/auth'
+} from 'lib-core/dist/dto/auth.dto'
 import { AuthService } from 'src/service/auth.service'
 
 export class AuthController {
@@ -29,7 +31,7 @@ export class AuthController {
   }
 
   @MessagePattern('auth.token-exists')
-  async tokenExists(logoutRequest: LogoutRequest): Promise<LogoutResponse> {
-    return await this.authService.logout(logoutRequest)
+  async tokenExists(logoutRequest: CheckTokenExistsRequest): Promise<CheckTokenExistsResponse> {
+    return await this.authService.checkTokenExists(logoutRequest)
   }
 }

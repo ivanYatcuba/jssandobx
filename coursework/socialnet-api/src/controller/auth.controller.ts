@@ -1,5 +1,8 @@
-import { Body, Controller, Headers, Post } from '@nestjs/common'
-import { LogoutResponse, RefreshTokenResponse, TokenResponse, UserCredentials } from 'src/dto/auth'
+import { Body, Controller, Headers, Post, Req, UseGuards } from '@nestjs/common'
+import { LogoutResponse, RefreshTokenResponse, TokenResponse } from 'lib-core/src/dto/auth.dto'
+import { UserCredentials } from 'lib-core/src/dto/user.dto'
+import { UserRequest } from 'src/dto/user.request.dto'
+import { JwtDecodeGuard } from 'src/guard/jwt-decode.guard'
 import { AuthService } from 'src/service/auth.service'
 
 @Controller('api/v1/auth')
@@ -14,19 +17,25 @@ export class AuthController {
     return await this.authService.token({ ...userCredentials, clientId })
   }
 
+  @UseGuards(JwtDecodeGuard)
   @Post('refresh')
   async refreshToken(
     @Headers('authorization') refreshToken: string,
-    @Headers('x-client-id') clientId: string,
+    @Req() req: UserRequest,
   ): Promise<RefreshTokenResponse> {
-    return await this.authService.refresh({ refreshToken: refreshToken.split('Bearer ')[1], clientId })
+    return await this.authService.refresh({
+      refreshToken: refreshToken.split('Bearer ')[1],
+      clientId: req.user.clientId,
+    })
   }
 
+  @UseGuards(JwtDecodeGuard)
   @Post('logout')
-  async logout(
-    @Headers('authorization') accessToken: string,
-    @Headers('x-client-id') clientId: string,
-  ): Promise<LogoutResponse> {
-    return await this.authService.logout({ accessToken: accessToken.split('Bearer ')[1], clientId })
+  async logout(@Headers('authorization') accessToken: string, @Req() req: UserRequest): Promise<LogoutResponse> {
+    return await this.authService.logout({
+      accessToken: accessToken.split('Bearer ')[1],
+      clientId: req.user.clientId,
+      userId: req.user.sub,
+    })
   }
 }

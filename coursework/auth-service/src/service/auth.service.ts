@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import {
+  CheckTokenExistsRequest,
+  CheckTokenExistsResponse,
   LogoutRequest,
   LogoutResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
   TokenRequest,
   TokenResponse,
-} from 'src/dto/auth'
+} from 'lib-core/src/dto/auth.dto'
 import { TokensRepository } from 'src/repository/tokens.repository'
 
 import { UserService } from './user.service'
@@ -46,12 +48,12 @@ export class AuthService {
         secret: process.env.JWT_SECRET,
       })
     } catch (e) {
-      throw new Error('Invalid or expired refresh token')
+      throw new UnauthorizedException('Invalid or expired refresh token')
     }
 
     const storedToken = await this.tokensService.findRefreshToken(refreshToken, clientId)
     if (!storedToken) {
-      throw new Error('Refresh token not found')
+      throw new UnauthorizedException('Refresh token not found')
     }
 
     const newAccessToken = this.jwtService.sign(
@@ -65,10 +67,24 @@ export class AuthService {
   }
 
   async logout(logoutRequest: LogoutRequest): Promise<LogoutResponse> {
-    const { accessToken, clientId } = logoutRequest
+    const { accessToken, clientId, userId } = logoutRequest
 
-    await this.tokensService.deleteAccessToken(accessToken, clientId)
+    await this.tokensService.deleteAccessToken(accessToken, clientId, userId)
 
-    return {}
+    return { success: true }
+  }
+
+  async checkTokenExists(logoutRequest: CheckTokenExistsRequest): Promise<CheckTokenExistsResponse> {
+    const { accessToken, clientId, userId, isTokenRefreshing } = logoutRequest
+
+    const existingRow = await this.tokensService.findToken(accessToken, clientId, userId, isTokenRefreshing)
+
+    if (!existingRow) {
+      throw new UnauthorizedException('Token does not exists')
+    }
+
+    return {
+      exists: true,
+    }
   }
 }

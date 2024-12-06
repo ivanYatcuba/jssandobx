@@ -1,14 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ClientProxy } from '@nestjs/microservices'
-import { firstValueFrom, timeout } from 'rxjs'
 import {
+  CheckTokenExistsRequest,
+  CheckTokenExistsResponse,
   LogoutRequest,
   LogoutResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
   TokenRequest,
   TokenResponse,
-} from 'src/dto/auth'
+} from 'lib-core/src/dto/auth.dto'
+import { firstValueFrom, timeout } from 'rxjs'
 
 @Injectable()
 export class AuthService {
@@ -31,6 +33,14 @@ export class AuthService {
   async logout(logoutRequest: LogoutRequest): Promise<LogoutResponse> {
     return await firstValueFrom(
       this.client.send<LogoutResponse, LogoutRequest>('auth.logout', logoutRequest).pipe(timeout(5000)),
+    )
+  }
+
+  async checkTokenExists(checkTokenExistsRequest: CheckTokenExistsRequest): Promise<CheckTokenExistsResponse> {
+    return await firstValueFrom(
+      this.client
+        .send<CheckTokenExistsResponse, CheckTokenExistsRequest>('auth.token-exists', checkTokenExistsRequest)
+        .pipe(timeout(5000)),
     )
   }
 }

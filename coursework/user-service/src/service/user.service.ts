@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
-import { CreateUserDto, UserCreatedDto, UserInfo, UserValidateRequest } from 'src/dto/user.dto'
+import {
+  CreateUserDto,
+  GetUserNamesRequest,
+  GetUserNamesResponse,
+  UserCreatedDto,
+  UserIdToName,
+  UserInfo,
+  UserValidateRequest,
+} from 'lib-core/dist/dto/user.dto'
 import { UserRepository } from 'src/repository/user.repository'
 
 @Injectable()
@@ -30,5 +38,22 @@ export class UserService {
     delete user.password
 
     return user
+  }
+
+  async getUsernames(getUserNamesRequest: GetUserNamesRequest): Promise<GetUserNamesResponse> {
+    const { userIds } = getUserNamesRequest
+
+    const userMappings = await this.userRepository.getIdToUsername(userIds)
+
+    const users: UserIdToName[] = userMappings.map(({ login, uid }) => {
+      return {
+        userId: uid,
+        userName: login,
+      }
+    })
+
+    return {
+      users,
+    }
   }
 }

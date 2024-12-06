@@ -8,7 +8,7 @@ async function bootstrap(): Promise<void> {
     transport: Transport.RMQ,
     options: {
       urls: [process.env.RABBIT_CONNECTION],
-      queue: 'user.service',
+      queue: 'post.service',
       queueOptions: {
         durable: false,
       },

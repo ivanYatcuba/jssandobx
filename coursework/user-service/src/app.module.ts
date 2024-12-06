@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { DbConnection } from 'lib-core/dist/repository/db.connection'
 
 import { UserController } from './controller/user.controller'
-import { DbConnection } from './repository/db.connection'
 import { UserRepository } from './repository/user.repository'
 import { UserService } from './service/user.service'
 

@@ -21,6 +21,20 @@ export interface RefreshTokenResponse {
 export interface LogoutRequest {
   accessToken: string
   clientId: string
+  userId: string
 }
 
-export interface LogoutResponse {}
+export interface LogoutResponse {
+  success: boolean
+}
+
+export interface CheckTokenExistsRequest {
+  accessToken: string
+  clientId: string
+  userId: string
+  isTokenRefreshing: boolean
+}
+
+export interface CheckTokenExistsResponse {
+  exists: boolean
+}

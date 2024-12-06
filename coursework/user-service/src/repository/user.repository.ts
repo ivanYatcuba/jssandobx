@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
-import { CreateUserDto, UserInfoWithPass } from 'src/dto/user.dto'
+import { CreateUserDto, UserInfo, UserInfoWithPass, UserValidateRequest } from 'lib-core/dist/dto/user.dto'
+import { DbConnection } from 'lib-core/dist/repository/db.connection'
 
-import { DbConnection } from './db.connection'
+import { UserRow } from './rows'
 
 @Injectable()
 export class UserRepository {
@@ -36,5 +37,13 @@ export class UserRepository {
       .query('SELECT email, login, password, createdAt FROM users WHERE id = ?', [id])
 
     return <UserInfoWithPass>res.rows[0]
+  }
+
+  async getIdToUsername(userIds: string[]): Promise<UserRow[]> {
+    const res = await this.dbConnection
+      .getDbConnectionPool()
+      .query('SELECT uid, login FROM users WHERE uid = ANY($1::uuid[])', [userIds])
+
+    return res.rows
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
+import { DbConnection } from 'lib-core/dist/repository/db.connection'
 
-import { DbConnection } from './db.connection'
+import { TokenUserIdRow } from './rows'
 
 @Injectable()
 export class TokensRepository {
@@ -15,15 +16,19 @@ export class TokensRepository {
       )
   }
 
-  async findAccessToken(accessToken: string): Promise<any> {
-    const result = await this.dbConnection
-      .getDbConnectionPool()
-      .query('SELECT * FROM tokens WHERE access_token = $1', [accessToken])
+  async findToken(
+    accessToken: string,
+    clientId: string,
+    userId: string,
+    isTokenRefreshing: boolean,
+  ): Promise<TokenUserIdRow> {
+    const query = `SELECT userId FROM tokens WHERE ${isTokenRefreshing ? 'refreshToken' : 'accessToken'} = $1 AND userId = $2 AND clientId = $3`
+    const result = await this.dbConnection.getDbConnectionPool().query(query, [accessToken, userId, clientId])
 
     return result.rows[0]
   }
 
-  async findRefreshToken(refreshToken: string, clientId: string): Promise<any> {
+  async findRefreshToken(refreshToken: string, clientId: string): Promise<TokenUserIdRow> {
     const result = await this.dbConnection
       .getDbConnectionPool()
       .query('SELECT userId FROM tokens WHERE refreshToken = $1 AND clientId = $2', [refreshToken, clientId])
@@ -31,19 +36,13 @@ export class TokensRepository {
     return result.rows[0]
   }
 
-  async deleteAccessToken(accessToken: string, clientId: string): Promise<void> {
-    await await this.dbConnection
+  async deleteAccessToken(accessToken: string, clientId: string, userId: string): Promise<void> {
+    await this.dbConnection
       .getDbConnectionPool()
-      .query('DELETE FROM tokens WHERE accessToken = $1 AND clientId = $2', [accessToken, clientId])
-  }
-
-  async deleteRefreshToken(refreshToken: string): Promise<void> {
-    await await this.dbConnection
-      .getDbConnectionPool()
-      .query('DELETE FROM tokens WHERE refresh_token = $1', [refreshToken])
-  }
-
-  async deleteTokensByUserId(userId: number): Promise<void> {
-    await await this.dbConnection.getDbConnectionPool().query('DELETE FROM tokens WHERE user_id = $1', [userId])
+      .query('DELETE FROM tokens WHERE accessToken = $1 AND clientId = $2 AND userId = $3', [
+        accessToken,
+        clientId,
+        userId,
+      ])
   }
 }
