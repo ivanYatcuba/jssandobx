@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { PostNotFound } from 'lib-core/dist/error/post'
 import {
   CreatePostRequest,
   DeletePostRequest,
@@ -51,6 +52,9 @@ export class PostService {
     const { postId } = getPostRequest
 
     const postRow = await this.postRepository.getPost(postId)
+    if (!postRow) {
+      throw new PostNotFound()
+    }
 
     return await this.mapPostRowToPostDto(postRow)
   }
@@ -59,6 +63,9 @@ export class PostService {
     const { postId, content, authorId } = updatePostRequest
 
     const postRow = await this.postRepository.updatePost(postId, content, authorId)
+    if (!postRow) {
+      throw new PostNotFound()
+    }
 
     return await this.mapPostRowToPostDto(postRow)
   }
@@ -67,6 +74,9 @@ export class PostService {
     const { postId, authorId } = deletePostRequest
 
     const removedUid = await this.postRepository.deletePost(postId, authorId)
+    if (!removedUid) {
+      throw new PostNotFound()
+    }
 
     return { postId: removedUid }
   }

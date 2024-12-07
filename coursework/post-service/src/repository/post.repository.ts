@@ -56,6 +56,6 @@ export class PostRepository {
       .getDbConnectionPool()
       .query('DELETE FROM posts WHERE uid = $1 AND author = $2 RETURNING uid', [postId, author])
 
-    return res.rows[0].uid
+    return res.rows[0]?.uid
   }
 }

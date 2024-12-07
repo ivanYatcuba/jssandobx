@@ -3,9 +3,9 @@ POST http://localhost:3000/api/v1/user/register
 Content-Type: application/json
 
 {
-  "email": "test@mail.com",
-  "login": "newMe",
-  "password": "qwerty"
+  "email": "test1@mail.com",
+  "login": "newMe1",
+  "password": "qwerty12345"
 }
 
 ### Get user token
@@ -14,8 +14,8 @@ Content-Type: application/json
 x-client-id: test-client
 
 {
-  "login": "newMe",
-  "password": "qwerty"
+  "login": "newMe1",
+  "password": "qwerty12345"
 }
 
 > {%
@@ -51,13 +51,13 @@ authorization: Bearer {{accessToken}}
 
 ### List posts
 
-GET http://localhost:3000/api/v1/post/list?limit=2&offset=0
+GET http://localhost:3000/api/v1/post/list?limit=100&offset=0
 Content-Type: application/json
 x-client-id: test-client
 authorization: Bearer {{accessToken}}
 
 ###
-@postId=b44c7f49-7cad-43ad-bdd4-984f6a806fec
+@postId=d3637c9f-f3db-4cc0-a4e3-a2bffdfe901e
 
 ### Get post
 

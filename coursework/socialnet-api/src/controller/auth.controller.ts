@@ -1,6 +1,6 @@
 import { Body, Controller, Headers, Post, Req, UseGuards } from '@nestjs/common'
 import { LogoutResponse, RefreshTokenResponse, TokenResponse } from 'lib-core/src/dto/auth.dto'
-import { UserCredentials } from 'lib-core/src/dto/user.dto'
+import { UserCredentialsReq } from 'src/dto/request/auth.requests.dto'
 import { UserRequest } from 'src/dto/user.request.dto'
 import { JwtDecodeGuard } from 'src/guard/jwt-decode.guard'
 import { AuthService } from 'src/service/auth.service'
@@ -11,7 +11,7 @@ export class AuthController {
 
   @Post('token')
   async token(
-    @Body() userCredentials: UserCredentials,
+    @Body() userCredentials: UserCredentialsReq,
     @Headers('x-client-id') clientId: string,
   ): Promise<TokenResponse> {
     return await this.authService.token({ ...userCredentials, clientId })

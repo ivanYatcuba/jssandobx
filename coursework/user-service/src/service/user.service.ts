@@ -9,6 +9,8 @@ import {
   UserInfo,
   UserValidateRequest,
 } from 'lib-core/dist/dto/user.dto'
+import { UserWrongLoginOrPassError } from 'lib-core/dist/error/auth'
+import { UsernameAlreadyExists } from 'lib-core/dist/error/user'
 import { UserRepository } from 'src/repository/user.repository'
 
 @Injectable()
@@ -17,7 +19,15 @@ export class UserService {
 
   async createUser(createUserDto: CreateUserDto): Promise<UserCreatedDto> {
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10)
-    await this.userRepository.createUser(createUserDto)
+    try {
+      await this.userRepository.createUser(createUserDto)
+    } catch (e) {
+      if (e.code === '23505') {
+        throw new UsernameAlreadyExists()
+      }
+
+      throw e
+    }
 
     return {}
   }
@@ -27,12 +37,12 @@ export class UserService {
 
     const user = await this.userRepository.getUserByUsernameOrEmail(login)
     if (!user) {
-      return null
+      throw new UserWrongLoginOrPassError()
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password)
-    if (passwordMatch) {
-      return user
+    if (!passwordMatch) {
+      throw new UserWrongLoginOrPassError()
     }
 
     delete user.password

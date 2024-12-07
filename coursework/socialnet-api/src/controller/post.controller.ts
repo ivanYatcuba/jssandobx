@@ -1,11 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common'
-import {
-  CreatePostResponse,
-  DeletePostResponse,
-  ListPostsResponse,
-  PostDto,
-  UserPostInput,
-} from 'lib-core/src/dto/post.dto'
+import { CreatePostResponse, DeletePostResponse, ListPostsResponse, PostDto } from 'lib-core/src/dto/post.dto'
+import { UserPostInputReq } from 'src/dto/request/post.requests.dto'
 import { UserRequest } from 'src/dto/user.request.dto'
 import { JwtDecodeGuard } from 'src/guard/jwt-decode.guard'
 import { PostService } from 'src/service/post.service'
@@ -16,7 +11,7 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post()
-  async createPost(@Body() userPostInput: UserPostInput, @Req() req: UserRequest): Promise<CreatePostResponse> {
+  async createPost(@Body() userPostInput: UserPostInputReq, @Req() req: UserRequest): Promise<CreatePostResponse> {
     return await this.postService.createPost({ ...userPostInput, authorId: req.user.sub })
   }
 
@@ -37,7 +32,7 @@ export class PostController {
   @Put(':postId')
   async updatePost(
     @Param('postId') postId: string,
-    @Body() userPostInput: UserPostInput,
+    @Body() userPostInput: UserPostInputReq,
     @Req() req: UserRequest,
   ): Promise<PostDto> {
     return await this.postService.updatePost({ postId, authorId: req.user.sub, content: userPostInput.content })
