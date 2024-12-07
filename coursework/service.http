@@ -56,3 +56,30 @@ Content-Type: application/json
 x-client-id: test-client
 authorization: Bearer {{accessToken}}
 
+###
+@postId=b44c7f49-7cad-43ad-bdd4-984f6a806fec
+
+### Get post
+
+GET http://localhost:3000/api/v1/post/{{postId}}
+Content-Type: application/json
+x-client-id: test-client
+authorization: Bearer {{accessToken}}
+
+### Update post
+
+PUT http://localhost:3000/api/v1/post/{{postId}}
+Content-Type: application/json
+x-client-id: test-client
+authorization: Bearer {{accessToken}}
+
+{
+  "content": "very useful information updated"
+}
+
+### Delete post
+
+DELETE http://localhost:3000/api/v1/post/{{postId}}
+Content-Type: application/json
+x-client-id: test-client
+authorization: Bearer {{accessToken}}

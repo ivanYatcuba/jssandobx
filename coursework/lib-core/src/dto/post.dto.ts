@@ -3,6 +3,7 @@ export interface UserPostInput {
 }
 
 export interface PostDto {
+  id: string
   content: string
   author: string
   date: Date
@@ -23,16 +24,6 @@ export interface UpdatePostRequest {
   authorId: string
 }
 
-export interface UpdatePostResponse {
-  postId: string
-}
-
-export interface ListAuthorsRequest {}
-
-export interface ListAuthorsResponse {
-  authorIds: string[]
-}
-
 export interface ListPostsRequest {
   authorId?: string
   limit?: number
@@ -49,5 +40,9 @@ export interface DeletePostRequest {
 }
 
 export interface DeletePostResponse {
+  postId: string
+}
+
+export interface GetPostRequest {
   postId: string
 }
