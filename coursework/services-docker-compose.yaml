@@ -36,4 +36,6 @@ services:
     environment:
       - DB_CONNECTION=postgres://dev:112233@localhost:5444/sn_posts
       - RABBIT_CONNECTION=amqp://rmuser:rmpassword@localhost:15672
+      - REDIS_CONNECTION=redis://localhost:6379
+      - CACHE_TTL=3600000
 
