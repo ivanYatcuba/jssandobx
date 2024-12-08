@@ -57,7 +57,7 @@ x-client-id: test-client
 authorization: Bearer {{accessToken}}
 
 ###
-@postId=2490d75f-1600-4789-80c6-d893915c6fdd
+@postId=95de2286-132e-4126-b8ae-3bd505593ab5
 
 ### Get post
 
