@@ -1,7 +1,9 @@
-import { Module } from '@nestjs/common'
+import { CacheModule, CacheStore } from '@nestjs/cache-manager'
+import { Logger, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER } from '@nestjs/core'
 import { ClientsModule, Transport } from '@nestjs/microservices'
+import { redisStore } from 'cache-manager-redis-store'
 import { MicroServiceExceptionFilter } from 'lib-core/dist/filter/exception.filter'
 import { DbConnection } from 'lib-core/dist/repository/db.connection'
 import { PostService } from 'src/service/post.service'
@@ -26,6 +28,17 @@ import { UserService } from './service/user.service'
         },
       },
     ]),
+    CacheModule.registerAsync({
+      useFactory: async () => {
+        const store = await redisStore({
+          url: process.env.REDIS_CONNECTION,
+        })
+
+        return {
+          store: <CacheStore>(<unknown>store),
+        }
+      },
+    }),
   ],
   controllers: [PostController],
   providers: [
@@ -37,6 +50,7 @@ import { UserService } from './service/user.service'
     PostRepository,
     PostService,
     UserService,
+    Logger,
   ],
 })
 export class AppModule {}

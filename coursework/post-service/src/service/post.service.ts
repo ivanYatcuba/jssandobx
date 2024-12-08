@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Cache } from 'cache-manager'
 import { PostNotFound } from 'lib-core/dist/error/post'
 import {
   CreatePostRequest,
@@ -18,21 +20,39 @@ import { UserService } from './user.service'
 
 @Injectable()
 export class PostService {
+  private readonly cacheTtl: number = Number(process.env.CACHE_TTL)
+
   constructor(
     private readonly postRepository: PostRepository,
     private readonly userService: UserService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly logger: Logger,
   ) {}
 
   async createPost(postContent: CreatePostRequest): Promise<CreatePostResponse> {
     const { content, authorId } = postContent
 
+    const postId = await this.postRepository.createPost(content, authorId)
+
+    await this.clearListCache()
+
     return {
-      postId: await this.postRepository.createPost(content, authorId),
+      postId,
     }
   }
 
   async getPosts(listPostsRequest: ListPostsRequest): Promise<ListPostsResponse> {
     const { limit, offset, authorId } = listPostsRequest
+
+    const cacheKey = `list.post:${limit}:${offset}:${authorId ?? '-'}`
+    const cachedPosts = await this.cacheManager.get<PostDto[]>(cacheKey)
+    if (cachedPosts) {
+      this.logger.log(`returning cached page ${cacheKey}`)
+
+      return {
+        posts: cachedPosts,
+      }
+    }
 
     const dbPosts = await this.postRepository.getPosts(limit, offset, authorId)
 
@@ -51,6 +71,8 @@ export class PostService {
       }
     })
 
+    await this.cacheManager.set(cacheKey, posts, this.cacheTtl)
+
     return {
       posts,
     }
@@ -59,12 +81,24 @@ export class PostService {
   async getPost(getPostRequest: GetPostRequest): Promise<PostDto> {
     const { postId } = getPostRequest
 
+    const cacheKey = this.postCacheKey(postId)
+    const cachedPost = await this.cacheManager.get<PostDto>(cacheKey)
+    if (cachedPost) {
+      this.logger.log('returning cached post')
+
+      return cachedPost
+    }
+
     const postRow = await this.postRepository.getPost(postId)
     if (!postRow) {
       throw new PostNotFound()
     }
 
-    return await this.mapPostRowToPostDto(postRow)
+    const post = await this.mapPostRowToPostDto(postRow)
+
+    await this.cacheManager.set(cacheKey, post, this.cacheTtl)
+
+    return post
   }
 
   async updatePost(updatePostRequest: UpdatePostRequest): Promise<PostDto> {
@@ -75,7 +109,14 @@ export class PostService {
       throw new PostNotFound()
     }
 
-    return await this.mapPostRowToPostDto(postRow)
+    const post = await this.mapPostRowToPostDto(postRow)
+
+    const cacheKey = this.postCacheKey(postId)
+
+    await this.cacheManager.set(cacheKey, post, this.cacheTtl)
+    await this.clearListCache()
+
+    return post
   }
 
   async deletePost(deletePostRequest: DeletePostRequest): Promise<DeletePostResponse> {
@@ -85,6 +126,11 @@ export class PostService {
     if (!removedUid) {
       throw new PostNotFound()
     }
+
+    const cacheKey = this.postCacheKey(postId)
+
+    await this.cacheManager.del(cacheKey)
+    await this.clearListCache()
 
     return { postId: removedUid }
   }
@@ -102,5 +148,19 @@ export class PostService {
       author: author.userName,
       date: updatedat ?? createdat,
     }
+  }
+
+  private async clearListCache(): Promise<void> {
+    const keys = await this.cacheManager.store.keys('list.post:*')
+
+    if (keys.length > 0) {
+      this.logger.log(`clearing post list cache keys ${JSON.stringify(keys)}`)
+
+      await this.cacheManager.store.mdel(...keys)
+    }
+  }
+
+  private postCacheKey(postId: string): string {
+    return `get.post:${postId}`
   }
 }
