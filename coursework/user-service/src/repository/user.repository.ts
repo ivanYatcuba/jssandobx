@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { CreateUserDto, UserInfo, UserInfoWithPass, UserValidateRequest } from 'lib-core/dist/dto/user.dto'
+import { CreateUserDto, UserInfoWithPass } from 'lib-core/dist/dto/user.dto'
 import { DbConnection } from 'lib-core/dist/repository/db.connection'
 
 import { UserRow } from './rows'

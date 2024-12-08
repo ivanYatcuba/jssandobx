@@ -1,0 +1,39 @@
+services:
+  socialnet-api:
+    build:
+      context: ./
+      dockerfile: ./socialnet-api/Dockerfile
+    ports:
+      - "3000:3000"
+    network_mode: "host"
+    environment:
+      - RABBIT_CONNECTION=amqp://rmuser:rmpassword@localhost:15672
+      - JWT_SECRET=secret
+  user-service:
+    build:
+      context: ./
+      dockerfile: ./user-service/Dockerfile
+    network_mode: "host"
+    environment:
+      - DB_CONNECTION=postgres://dev:112233@localhost:5444/sn_user
+      - RABBIT_CONNECTION=amqp://rmuser:rmpassword@localhost:15672
+  auth-service:
+    build:
+      context: ./
+      dockerfile: ./auth-service/Dockerfile
+    network_mode: "host"
+    environment:
+      - DB_CONNECTION=postgres://dev:112233@localhost:5444/sn_auth
+      - RABBIT_CONNECTION=amqp://rmuser:rmpassword@localhost:15672
+      - JWT_SECRET=secret
+      - JWT_AUTH_TOKEN_EXIRE=15m
+      - JWT_RESRESH_TOKEN_EXIRE=7d
+  post-service:
+    build:
+      context: ./
+      dockerfile: ./post-service/Dockerfile
+    network_mode: "host"
+    environment:
+      - DB_CONNECTION=postgres://dev:112233@localhost:5444/sn_posts
+      - RABBIT_CONNECTION=amqp://rmuser:rmpassword@localhost:15672
+
