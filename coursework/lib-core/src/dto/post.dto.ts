@@ -31,7 +31,7 @@ export interface ListPostsRequest {
 }
 
 export interface ListPostsResponse {
-  authorId?: string
+  posts: PostDto[]
 }
 
 export interface DeletePostRequest {

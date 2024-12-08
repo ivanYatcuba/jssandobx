@@ -7,6 +7,7 @@ import {
   DeletePostResponse,
   GetPostRequest,
   ListPostsRequest,
+  ListPostsResponse,
   PostDto,
   UpdatePostRequest,
 } from 'lib-core/dist/dto/post.dto'
@@ -17,36 +18,26 @@ export class PostController {
 
   @MessagePattern('post.create')
   async createPost(cratePostRequest: CreatePostRequest): Promise<CreatePostResponse> {
-    const newPostId = await this.postService.createPost(cratePostRequest)
-
-    return { postId: newPostId }
+    return await this.postService.createPost(cratePostRequest)
   }
 
   @MessagePattern('post.list')
-  async listPosts(listPostsRequest: ListPostsRequest): Promise<PostDto[]> {
-    const posts = await this.postService.getPosts(listPostsRequest)
-
-    return posts
+  async listPosts(listPostsRequest: ListPostsRequest): Promise<ListPostsResponse> {
+    return await this.postService.getPosts(listPostsRequest)
   }
 
   @MessagePattern('post.get')
   async getPost(getPostRequest: GetPostRequest): Promise<PostDto> {
-    const post = await this.postService.getPost(getPostRequest)
-
-    return post
+    return await this.postService.getPost(getPostRequest)
   }
 
   @MessagePattern('post.update')
   async updatePost(updatePostRequest: UpdatePostRequest): Promise<PostDto> {
-    const post = await this.postService.updatePost(updatePostRequest)
-
-    return post
+    return await this.postService.updatePost(updatePostRequest)
   }
 
   @MessagePattern('post.delete')
   async deletePost(deletePostRequest: DeletePostRequest): Promise<DeletePostResponse> {
-    const deleteResponse = await this.postService.deletePost(deletePostRequest)
-
-    return deleteResponse
+    return await this.postService.deletePost(deletePostRequest)
   }
 }

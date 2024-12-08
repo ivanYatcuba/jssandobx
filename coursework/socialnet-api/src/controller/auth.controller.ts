@@ -1,7 +1,8 @@
-import { Body, Controller, Headers, Post, Req, UseGuards } from '@nestjs/common'
-import { LogoutResponse, RefreshTokenResponse, TokenResponse } from 'lib-core/src/dto/auth.dto'
+import { Body, Controller, Headers, HttpCode, Post, Req, UseGuards } from '@nestjs/common'
+import { ApiHeader, ApiHeaders, ApiResponse } from '@nestjs/swagger'
+import { UserRequest } from 'src/dto/base.request.dto'
 import { UserCredentialsReq } from 'src/dto/request/auth.requests.dto'
-import { UserRequest } from 'src/dto/user.request.dto'
+import { LogoutResp, RefreshTokenRes, TokenRes } from 'src/dto/response/auth.responses.dto'
 import { JwtDecodeGuard } from 'src/guard/jwt-decode.guard'
 import { AuthService } from 'src/service/auth.service'
 
@@ -10,19 +11,46 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('token')
+  @ApiHeader({
+    name: 'x-client-id',
+    description: 'client identifier',
+    required: true,
+    schema: {
+      example: 'test-client',
+    },
+  })
+  @HttpCode(200)
+  @ApiResponse({ status: 200, type: TokenRes, description: 'Returns access and refresh tokens' })
   async token(
     @Body() userCredentials: UserCredentialsReq,
     @Headers('x-client-id') clientId: string,
-  ): Promise<TokenResponse> {
+  ): Promise<TokenRes> {
     return await this.authService.token({ ...userCredentials, clientId })
   }
 
   @UseGuards(JwtDecodeGuard)
   @Post('refresh')
+  @ApiHeaders([
+    {
+      name: 'x-client-id',
+      description: 'client identifier',
+      required: true,
+      schema: {
+        example: 'test-client',
+      },
+    },
+    {
+      name: 'authorization',
+      required: true,
+      description: 'refresh token',
+    },
+  ])
+  @HttpCode(200)
+  @ApiResponse({ status: 200, type: TokenRes, description: 'Returns refreshed access' })
   async refreshToken(
     @Headers('authorization') refreshToken: string,
     @Req() req: UserRequest,
-  ): Promise<RefreshTokenResponse> {
+  ): Promise<RefreshTokenRes> {
     return await this.authService.refresh({
       refreshToken: refreshToken.split('Bearer ')[1],
       clientId: req.user.clientId,
@@ -31,7 +59,24 @@ export class AuthController {
 
   @UseGuards(JwtDecodeGuard)
   @Post('logout')
-  async logout(@Headers('authorization') accessToken: string, @Req() req: UserRequest): Promise<LogoutResponse> {
+  @ApiHeaders([
+    {
+      name: 'x-client-id',
+      description: 'client identifier',
+      required: true,
+      schema: {
+        example: 'test-client',
+      },
+    },
+    {
+      name: 'authorization',
+      required: true,
+      description: 'access token',
+    },
+  ])
+  @HttpCode(200)
+  @ApiResponse({ status: 200, type: LogoutResp, description: 'Logout success message' })
+  async logout(@Headers('authorization') accessToken: string, @Req() req: UserRequest): Promise<LogoutResp> {
     return await this.authService.logout({
       accessToken: accessToken.split('Bearer ')[1],
       clientId: req.user.clientId,

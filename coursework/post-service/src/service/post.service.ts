@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common'
 import { PostNotFound } from 'lib-core/dist/error/post'
 import {
   CreatePostRequest,
+  CreatePostResponse,
   DeletePostRequest,
   DeletePostResponse,
   GetPostRequest,
   ListPostsRequest,
+  ListPostsResponse,
   PostDto,
   UpdatePostRequest,
 } from 'lib-core/src/dto/post.dto'
@@ -21,13 +23,15 @@ export class PostService {
     private readonly userService: UserService,
   ) {}
 
-  async createPost(postContent: CreatePostRequest): Promise<string> {
+  async createPost(postContent: CreatePostRequest): Promise<CreatePostResponse> {
     const { content, authorId } = postContent
 
-    return await this.postRepository.createPost(content, authorId)
+    return {
+      postId: await this.postRepository.createPost(content, authorId),
+    }
   }
 
-  async getPosts(listPostsRequest: ListPostsRequest): Promise<PostDto[]> {
+  async getPosts(listPostsRequest: ListPostsRequest): Promise<ListPostsResponse> {
     const { limit, offset, authorId } = listPostsRequest
 
     const dbPosts = await this.postRepository.getPosts(limit, offset, authorId)
@@ -38,7 +42,7 @@ export class PostService {
 
     const authors = new Map(usernames.users.map((u) => [u.userId, u.userName]))
 
-    return dbPosts.map(({ uid: id, content, author, updatedat, createdat }) => {
+    const posts: PostDto[] = dbPosts.map(({ uid: id, content, author, updatedat, createdat }) => {
       return {
         id,
         content,
@@ -46,6 +50,10 @@ export class PostService {
         date: updatedat ?? createdat,
       }
     })
+
+    return {
+      posts,
+    }
   }
 
   async getPost(getPostRequest: GetPostRequest): Promise<PostDto> {

@@ -12,7 +12,8 @@ import {
   PostDto,
   UpdatePostRequest,
 } from 'lib-core/dist/dto/post.dto'
-import { firstValueFrom, timeout } from 'rxjs'
+import { timeout } from 'rxjs'
+import { ListPostsResp } from 'src/dto/response/post.responses.dto'
 
 @Injectable()
 export class PostService {
@@ -26,8 +27,10 @@ export class PostService {
     return await clientCall(this.client.send<ListPostsResponse, ListPostsRequest>('post.list', listPostsRequest))
   }
 
-  async getPost(getPostRequest: GetPostRequest): Promise<PostDto> {
-    return await clientCall(this.client.send<PostDto, GetPostRequest>('post.get', getPostRequest).pipe(timeout(5000)))
+  async getPost(getPostRequest: GetPostRequest): Promise<ListPostsResp> {
+    return await clientCall(
+      this.client.send<ListPostsResp, GetPostRequest>('post.get', getPostRequest).pipe(timeout(5000)),
+    )
   }
 
   async updatePost(updatePostRequest: UpdatePostRequest): Promise<PostDto> {
